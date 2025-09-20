@@ -12,7 +12,7 @@ const PORT = process.env.PORT || 3001;
 // Middleware
 app.use(cors({
   origin: process.env.NODE_ENV === 'production' 
-    ? ['https://yourusername.github.io', 'https://your-custom-domain.com']
+    ? ['https://obi-life.github.io/trail-game']
     : ['http://localhost:3000', 'http://127.0.0.1:8081']
 }));
 app.use(express.json());
