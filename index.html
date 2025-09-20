@@ -1235,14 +1235,17 @@ Keep it playful, age-appropriate, and IB learner profile–aligned.
           `;
           
           document.getElementById('result').style.display = 'block';
+        
+          // Play completion sound when learning trail is generated
+          playCompletionSound();
+          downloadLearningTrailPDF(final_content, kid_name, kid_age, kid_gender, popped_categories, theme_of_learning);
+
           
           // Add PDF download event listener
           document.getElementById('download-pdf-btn').addEventListener('click', () => {
             downloadLearningTrailPDF(final_content, kid_name, kid_age, kid_gender, popped_categories, theme_of_learning);
           });
-          
-          // Auto-download after 2 seconds
-          downloadLearningTrailPDF(final_content, kid_name, kid_age, kid_gender, popped_categories, theme_of_learning);
+
           
         } else {
           throw new Error('Invalid response format from API');
