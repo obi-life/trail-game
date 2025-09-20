@@ -1,0 +1,1149 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>🎪 Carnival Bubble Pop Game 🫧</title>
+  <link href="https://fonts.googleapis.com/css2?family=Comic+Neue:wght@300;400;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --primary: #ee4422;
+      --secondary: #4f9cff;
+      --accent: #7ad0ff;
+      --success: #2fbf71;
+      --warning: #ffb020;
+      --danger: #ff5a6f;
+      --bg-gradient: linear-gradient(135deg, #ee4422 0%, #000000 100%);
+      --card-bg: rgba(255, 255, 255, 0.95);
+      --shadow: 0 20px 40px rgba(0,0,0,0.15);
+      --shadow-hover: 0 25px 50px rgba(0,0,0,0.25);
+    }
+    
+    * { 
+      box-sizing: border-box; 
+    }
+    
+    body {
+      margin: 0;
+      background: var(--bg-gradient);
+      font-family: 'Comic Neue', cursive, system-ui;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      min-height: 100vh;
+      overflow-y: auto;
+      position: relative;
+    }
+
+    /* Animated Background Elements */
+    .bg-animation {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+      z-index: 0;
+      overflow: hidden;
+    }
+
+    .floating-emoji {
+      position: absolute;
+      font-size: 3rem;
+      opacity: 0.6;
+      animation: float 4s ease-in-out infinite;
+    }
+
+    .floating-emoji:nth-child(1) { top: 10%; left: 10%; animation-delay: 0s; }
+    .floating-emoji:nth-child(2) { top: 20%; right: 15%; animation-delay: 0.5s; }
+    .floating-emoji:nth-child(3) { bottom: 20%; left: 20%; animation-delay: 1s; }
+    .floating-emoji:nth-child(4) { bottom: 30%; right: 10%; animation-delay: 1.5s; }
+    .floating-emoji:nth-child(5) { top: 40%; left: 50%; animation-delay: 2s; }
+    .floating-emoji:nth-child(6) { top: 60%; right: 30%; animation-delay: 2.5s; }
+
+    @keyframes float {
+      0%, 100% { transform: translateY(0px) rotate(0deg); }
+      25% { transform: translateY(-20px) rotate(5deg); }
+      50% { transform: translateY(-15px) rotate(-5deg); }
+      75% { transform: translateY(-25px) rotate(3deg); }
+    }
+
+    @keyframes sparkle {
+      0%, 100% { transform: scale(1) rotate(0deg); opacity: 0.7; }
+      50% { transform: scale(1.2) rotate(180deg); opacity: 1; }
+    }
+
+    @keyframes bounce-gentle {
+      0%, 100% { transform: translateY(0px); }
+      50% { transform: translateY(-10px); }
+    }
+
+    @keyframes subtle-glow {
+      0%, 100% { transform: scale(1); opacity: 0.9; }
+      50% { transform: scale(1.05); opacity: 1; }
+    }
+
+    @keyframes pulse-glow {
+      0%, 100% { box-shadow: 0 0 20px rgba(238, 68, 34, 0.3); }
+      50% { box-shadow: 0 0 40px rgba(238, 68, 34, 0.6); }
+    }
+
+    /* Start Screen */
+    #start-screen {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 20px;
+      padding: 24px;
+      width: 100%;
+      height: 100vh;
+      max-width: 600px;
+      text-align: center;
+      position: relative;
+      z-index: 10;
+    }
+
+    #start-card {
+      width: 100%;
+      background: var(--card-bg);
+      backdrop-filter: blur(10px);
+      border-radius: 24px;
+      box-shadow: var(--shadow);
+      padding: 32px;
+      border: 4px solid rgba(255, 255, 255, 0.3);
+      position: relative;
+      overflow: hidden;
+      transition: all 0.3s ease;
+    }
+
+    #start-card:hover {
+      box-shadow: var(--shadow-hover);
+      transform: translateY(-5px);
+    }
+
+    #start-card::before {
+      content: '';
+      position: absolute;
+      top: -50%;
+      left: -50%;
+      width: 200%;
+      height: 200%;
+      background: linear-gradient(45deg, transparent, rgba(255,255,255,0.1), transparent);
+      transform: rotate(45deg);
+      animation: shimmer 3s infinite;
+    }
+
+    @keyframes shimmer {
+      0% { transform: translateX(-100%) translateY(-100%) rotate(45deg); }
+      100% { transform: translateX(100%) translateY(100%) rotate(45deg); }
+    }
+
+    .carnival-header {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-bottom: 20px;
+      gap: 10px;
+    }
+
+    .carnival-logo {
+      font-size: 2.5rem;
+      animation: bounce-gentle 2s infinite;
+    }
+
+    .carnival-title {
+      background: linear-gradient(45deg, var(--primary), var(--secondary));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      font-size: 2.5rem;
+      font-weight: 700;
+      margin: 0;
+      animation: subtle-glow 3s infinite;
+    }
+
+    .subtitle {
+      color: #666;
+      font-size: 1rem;
+      margin-bottom: 24px;
+      font-weight: 400;
+    }
+
+    .row {
+      display: flex;
+      gap: 16px;
+      flex-wrap: wrap;
+      justify-content: center;
+      margin-bottom: 24px;
+    }
+
+    .field {
+      flex: 1 1 200px;
+      display: flex;
+      flex-direction: column;
+      align-items: flex-start;
+      text-align: left;
+      gap: 8px;
+      position: relative;
+    }
+
+    .field label {
+      font-size: 14px;
+      color: #333;
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .field input, .field select {
+      width: 100%;
+      padding: 14px 16px;
+      font-size: 16px;
+      border-radius: 16px;
+      border: 3px solid rgba(238, 68, 34, 0.2);
+      outline: none;
+      background: rgba(255, 255, 255, 0.9);
+      transition: all 0.3s ease;
+      font-family: 'Comic Neue', cursive;
+    }
+
+    .field input:focus, .field select:focus {
+      border-color: var(--primary);
+      box-shadow: 0 0 20px rgba(238, 68, 34, 0.3);
+      transform: translateY(-2px);
+    }
+
+    #start-button {
+      padding: 16px 32px;
+      font-size: 20px;
+      background: linear-gradient(45deg, var(--primary), var(--warning));
+      color: white;
+      border: none;
+      border-radius: 50px;
+      cursor: pointer;
+      margin-top: 16px;
+      font-weight: 700;
+      font-family: 'Comic Neue', cursive;
+      transition: all 0.3s ease;
+      position: relative;
+      overflow: hidden;
+      animation: pulse-glow 2s infinite;
+    }
+
+    #start-button:hover {
+      background: linear-gradient(45deg, var(--warning), var(--primary));
+      transform: translateY(-3px) scale(1.05);
+      box-shadow: 0 10px 30px rgba(238, 68, 34, 0.4);
+    }
+
+    #start-button:active {
+      transform: translateY(-1px) scale(1.02);
+    }
+
+    /* Canvas / Game */
+    #game {
+      display: none;
+      margin: 16px auto;
+      border-radius: 20px;
+      box-shadow: var(--shadow);
+      background: var(--bg-gradient);
+      touch-action: none;
+      border: 4px solid rgba(255, 255, 255, 0.3);
+      position: relative;
+      z-index: 10;
+    }
+
+    /* Loading Overlay */
+    #loading-screen {
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.8);
+      backdrop-filter: blur(10px);
+      display: none;
+      justify-content: center;
+      align-items: center;
+      color: white;
+      font-size: 28px;
+      text-align: center;
+      z-index: 1000;
+      padding: 24px;
+      font-family: 'Comic Neue', cursive;
+    }
+
+    #loading-text { 
+      animation: bounce-gentle 1.5s infinite;
+      display: flex;
+      align-items: center;
+      gap: 16px;
+    }
+
+    .loading-emoji {
+      font-size: 3rem;
+      animation: subtle-glow 1s infinite;
+    }
+
+    /* Results / Error */
+    #result, #error {
+      margin: 20px auto;
+      max-width: 900px;
+      background: var(--card-bg);
+      backdrop-filter: blur(10px);
+      padding: 32px;
+      border-radius: 24px;
+      box-shadow: var(--shadow);
+      line-height: 1.8;
+      display: none;
+      text-align: left;
+      overflow-y: auto;
+      max-height: 80vh;
+      font-size: 16px;
+      border: 4px solid rgba(255, 255, 255, 0.3);
+      position: relative;
+      z-index: 10;
+    }
+
+    #result h2 {
+      color: #333;
+      font-size: 28px;
+      text-align: center;
+      margin: 0 0 24px;
+      background: linear-gradient(45deg, var(--primary), var(--secondary));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      font-weight: 700;
+    }
+
+    #result ul { 
+      list-style: none; 
+      margin: 0; 
+      padding: 0; 
+    }
+
+    #result li { 
+      margin-bottom: 16px; 
+      padding: 12px;
+      background: rgba(238, 68, 34, 0.1);
+      border-radius: 12px;
+      border-left: 4px solid var(--primary);
+    }
+
+    #error { 
+      background: rgba(255, 90, 111, 0.1); 
+      color: var(--danger);
+      border-color: var(--danger);
+    }
+
+    #start-again-button {
+      padding: 16px 32px;
+      font-size: 18px;
+      background: linear-gradient(45deg, var(--success), var(--accent));
+      color: white;
+      border: none;
+      border-radius: 50px;
+      cursor: pointer;
+      margin-top: 24px;
+      display: block;
+      margin-left: auto;
+      margin-right: auto;
+      font-weight: 700;
+      font-family: 'Comic Neue', cursive;
+      transition: all 0.3s ease;
+    }
+
+    #start-again-button:hover { 
+      background: linear-gradient(45deg, var(--accent), var(--success));
+      transform: translateY(-3px) scale(1.05);
+      box-shadow: 0 10px 30px rgba(47, 191, 113, 0.4);
+    }
+
+    #start-meta { 
+      margin-top: 16px; 
+      color: #666; 
+      font-size: 14px; 
+      opacity: 0.9;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    .meta-item {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      padding: 4px 8px;
+      background: rgba(238, 68, 34, 0.1);
+      border-radius: 12px;
+      font-weight: 500;
+    }
+
+      .game-description {
+    background: rgba(238, 68, 34, 0.05);
+    border-radius: 16px;
+    padding: 20px;
+    margin-bottom: 24px;
+    border: 2px solid rgba(238, 68, 34, 0.1);
+  }
+
+  .benefits-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 12px;
+    margin-bottom: 16px;
+  }
+
+  .benefit-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 12px;
+    background: rgba(255, 255, 255, 0.7);
+    border-radius: 12px;
+    font-size: 14px;
+    font-weight: 500;
+    color: #333;
+  }
+
+  .benefit-icon {
+    font-size: 18px;
+    flex-shrink: 0;
+  }
+
+  .benefit-text {
+    flex: 1;
+  }
+
+  .learning-note {
+    background: linear-gradient(45deg, rgba(79, 156, 255, 0.1), rgba(122, 208, 255, 0.1));
+    padding: 12px 16px;
+    border-radius: 12px;
+    margin: 0;
+    font-size: 14px;
+    color: #444;
+    font-weight: 500;
+    border-left: 4px solid var(--secondary);
+  }
+
+  /* Responsive adjustments for game description */
+  @media (max-width: 768px) {
+    .benefits-grid {
+      grid-template-columns: 1fr;
+      gap: 8px;
+    }
+    
+    .benefit-item {
+      font-size: 13px;
+      padding: 6px 10px;
+    }
+    
+    .game-description {
+      padding: 16px;
+    }
+  }
+
+
+    /* Responsive Design */
+    @media (max-width: 768px) {
+      .carnival-title {
+        font-size: 2rem;
+      }
+      
+      .field {
+        flex: 1 1 100%;
+      }
+      
+      #start-card {
+        padding: 24px;
+        margin: 16px;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Animated Background -->
+  <div class="bg-animation">
+    <div class="floating-emoji">🎪</div>
+    <div class="floating-emoji">🎠</div>
+    <div class="floating-emoji">🎡</div>
+    <div class="floating-emoji">🎭</div>
+    <div class="floating-emoji">🎉</div>
+    <div class="floating-emoji">✨</div>
+  </div>
+
+
+  <!-- START SCREEN -->
+  <section id="start-screen">
+    <div id="start-card">
+      <div class="carnival-header">
+        <img src="obi-logo.svg" alt="OBI Learning" style="height: 60px; width: auto; margin-right: 15px;">
+        <h1 class="carnival-title">Bubble Pop </h1>
+        <div class="carnival-logo">🫧</div>
+      </div>
+      
+      <div class="game-description">
+    
+        <p class="learning-note">
+          🎯 Pop bubbles with different themes like Animals, Nature, Arts, and Science! 
+          After playing, you'll get special learning activities just for you!
+        </p>
+      </div>
+      
+      <div class="row">
+        <div class="field">
+          <label for="kid-name-input">👶 Child's Name</label>
+          <input type="text" id="kid-name-input" placeholder="e.g., Nia" required/>
+        </div>
+        <div class="field">
+          <label for="kid-age-input">🎂 Child's Age</label>
+          <input type="number" id="kid-age-input" min="2" max="12" step="1" placeholder="e.g., 5" required/>
+        </div>
+        <div class="field">
+          <label for="kid-gender-input">👤 Child's Gender</label>
+          <select id="kid-gender-input">
+            <option value="M">👦 Male</option>
+            <option value="F">👧 Female</option>
+            <option value="N">🌈 Prefer not to say</option>
+          </select>
+        </div>
+      </div>
+      
+      <button id="start-button">🎓 Let's Play & Learn! 🎓</button>
+      
+      <div id="start-meta">
+        <div class="meta-item">⏰ 30-second learning round</div>
+        <div class="meta-item">🫧 Pop bubbles to explore topics</div>
+        <div class="meta-item">📖 Get your learning plan after</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- GAME CANVAS -->
+  <canvas id="game" width="1000" height="750" aria-label="Bubble Pop Game"></canvas>
+
+  <!-- LOADING OVERLAY -->
+  <div id="loading-screen">
+    <div id="loading-text">
+      <div class="loading-emoji">🎪</div>
+      <div>Creating your magical learning adventure...</div>
+      <div class="loading-emoji">✨</div>
+    </div>
+  </div>
+
+  <!-- RESULT + ERROR -->
+  <div id="result"></div>
+  <div id="error"></div>
+
+  <script>
+    /**********************
+     * CONFIG
+     * Replace the API key below with your real key.
+     * WARNING: embedding your key here is insecure.
+     **********************/
+    const API_KEY = "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"; // <-- REPLACE this with your key (insecure)
+    const MODEL = "gpt-4o-mini-2024-07-18"; // or "gpt-4o-mini"
+    const WIDTH = 1000, HEIGHT = 750, GAME_TIME = 30, BUBBLE_COUNT = 7;
+    const BG = [45, 55, 72]; // Darker, more neutral background for better contrast
+    const MIN_R = 68, MAX_R = 110;
+    const UP_SPEED = [70, 120], SIDE_DRIFT = [20, 40], WOBBLE = [10, 18];
+    const DRAG = 0.999, MIN_GAP = 6;
+
+    // IB-aligned categories (kept as in original)
+    const CATEGORIES = [
+      ["Cars 🚗", [255,120,120], "How the World Works"],
+      ["Fruits 🍎", [255,165,  0], "Sharing the Planet"],
+      ["Animals 🐶", [ 80,120,255], "Sharing the Planet"],
+      ["Shapes 🔺", [ 98,  0,238], "How We Express Ourselves"],
+      ["Colors 🎨", [255,192,203], "How We Express Ourselves"],
+      ["Music 🎵",  [255,223,  0], "How We Express Ourselves"],
+      ["Nature 🌳", [160,120,220], "Sharing the Planet"],
+      ["Family 👨‍👩‍👧", [255,105,180], "Who We Are"],
+      ["Friends 🤝", [  0,128,128], "Who We Are"],
+      ["Sea Creatures 🐠", [  0,191,255], "Sharing the Planet"],
+      ["Space 🚀",  [180,180,200], "How the World Works"],
+      ["Jobs 👩‍⚕️", [255, 69,  0], "How We Organize Ourselves"],
+      ["Sports ⚽",  [ 34,139, 34], "How We Express Ourselves"],
+      ["Transport 🚂",[  0,  0,128], "How We Organize Ourselves"],
+      ["Weather ☀️", [255,215,  0], "How the World Works"],
+      ["Flowers 🌸", [255, 20,147], "Sharing the Planet"],
+      ["Birds 🐦",   [135,206,250], "Sharing the Planet"],
+      ["Numbers 🔢", [255,140,  0], "How We Express Ourselves"],
+      ["Letters 🔤", [  0,255,127], "How We Express Ourselves"],
+      ["Cooking 🍳", [210,105, 30], "How We Organize Ourselves"],
+      ["Helping Hands ✋", [255,255,224], "Who We Are"],
+      ["Dance 💃",   [199, 21,133], "How We Express Ourselves"],
+      ["Building 🏗️",[105,105,105], "How We Organize Ourselves"],
+      ["Gardening 🌱",[ 34,139, 34], "Sharing the Planet"],
+      ["Fishing 🎣", [ 70,130,180], "Sharing the Planet"],
+      ["Mountains 🏔️",[139,137,137],"Sharing the Planet"],
+      ["Desert 🏜️", [244,164, 96], "Sharing the Planet"],
+      ["Camping ⛺", [160, 82, 45], "Sharing the Planet"],
+      ["Magic ✨",   [123,104,238], "How We Express Ourselves"],
+      ["Festivals 🎉",[255, 99, 71], "Who We Are"],
+    ];
+
+    const title_font = 'bold 78px "Comic Neue", Arial, sans-serif';
+    const bubble_font = 'bold 48px "Comic Neue", Arial, sans-serif';
+
+    /**********************
+     * STATE
+     **********************/
+    let kid_name = "", kid_age = "", kid_gender = "";
+    let start_time = null, theme_accuracy = {}, popped_categories = [];
+    let bubbles = [];
+    const canvas = document.getElementById('game');
+    const ctx = canvas.getContext('2d', { alpha: false });
+    let lastTime = null;
+
+    /**********************
+     * UTILITIES
+     **********************/
+    function draw_text_with_shadow(text, cx, cy, font, color='rgb(255,255,255)', shadow='rgb(0,0,0)', dx=3, dy=3) {
+      ctx.font = font;
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'middle';
+      
+      // Enhanced shadow for better readability
+      ctx.fillStyle = 'rgba(0,0,0,0.8)';
+      ctx.fillText(text, cx + dx, cy + dy);
+      ctx.fillStyle = 'rgba(0,0,0,0.4)';
+      ctx.fillText(text, cx + dx-1, cy + dy-1);
+      
+      // Main text with slight outline
+      ctx.strokeStyle = 'rgba(0,0,0,0.9)';
+      ctx.lineWidth = 4;
+      ctx.strokeText(text, cx, cy);
+      
+      ctx.fillStyle = color;
+      ctx.fillText(text, cx, cy);
+    }
+
+    class CategoryFeeder {
+      constructor(items) {
+        this.items = [...items];
+        this.shuffle();
+        this.i = 0;
+      }
+      shuffle() { this.items.sort(() => Math.random() - 0.5); }
+      next(exclude_set) {
+        let tries = 0;
+        while (tries < this.items.length * 2) {
+          let cat = this.items[this.i];
+          this.i = (this.i + 1) % this.items.length;
+          if (!exclude_set.has(cat[0])) return cat;
+          tries++;
+        }
+        this.shuffle();
+        this.i = 0;
+        return this.items[0];
+      }
+    }
+    const feeder = new CategoryFeeder(CATEGORIES);
+
+    /**********************
+     * SOUND
+     **********************/
+    const popSound = new Audio("./bubble.mp3");  
+    popSound.preload = "auto";
+
+    // Background music
+    const bgMusic = new Audio("./bg.mp3");
+    bgMusic.preload = "auto";
+    bgMusic.loop = true;
+    bgMusic.volume = 0.3; // Set to 30% volume so it's not too loud
+
+    // Completion sound
+    const completionSound = new Audio("./wand.mp3");
+    completionSound.preload = "auto";
+    completionSound.volume = 0.7;
+
+    function play_pop() {
+      try {
+        const sound = popSound.cloneNode(); // allow multiple pops
+        sound.play().catch(err => {
+          console.debug("Sound blocked until user interaction:", err.message);
+        });
+      } catch(e) {
+        console.error("Sound error:", e);
+      }
+    }
+
+    function startBackgroundMusic() {
+      try {
+        bgMusic.play().catch(err => {
+          console.debug("Background music blocked until user interaction:", err.message);
+        });
+      } catch(e) {
+        console.error("Background music error:", e);
+      }
+    }
+
+    function playCompletionSound() {
+      try {
+        completionSound.play().catch(err => {
+          console.debug("Completion sound blocked:", err.message);
+        });
+      } catch(e) {
+        console.error("Completion sound error:", e);
+      }
+    }
+
+    /**********************
+     * BUBBLE CLASS
+     **********************/
+    class Bubble {
+      constructor(existing, from_pop=false) {
+        const exclude = new Set(existing.map(b => b.category));
+        [this.category, this.color, this.theme] = feeder.next(exclude);
+
+        // radius fits label
+        const mctx = document.createElement('canvas').getContext('2d');
+        mctx.font = bubble_font;
+        const txt_w = mctx.measureText(this.category).width;
+        const fit_r = txt_w / 2 + 50;
+        this.radius = Math.max(
+          Math.floor(Math.random() * (MAX_R - MIN_R + 1)) + MIN_R,
+          Math.min(MAX_R, fit_r)
+        );
+
+        // position below canvas
+        let tries = 0;
+        do {
+          this.x = Math.floor(Math.random() * (WIDTH - this.radius*2 - 20)) + this.radius + 10;
+          this.y = HEIGHT + Math.floor(Math.random() * 181) + 40;
+          tries++;
+          if (tries > 300) break;
+        } while (existing.some(b => Math.hypot(this.x - b.x, this.y - b.y) < (this.radius + b.radius + MIN_GAP)));
+
+        this.vx = Math.random() * (SIDE_DRIFT[1]*2) - SIDE_DRIFT[1];
+        this.vy = - (Math.random() * (UP_SPEED[1] - UP_SPEED[0]) + UP_SPEED[0]);
+        this.phase = Math.random() * 2 * Math.PI;
+        this.wobble_x = Math.random() * (WOBBLE[1] - WOBBLE[0]) + WOBBLE[0];
+        this.wobble_y = Math.random() * (WOBBLE[1] - WOBBLE[0]) + WOBBLE[0];
+        this.alpha = from_pop ? 0 : 255;
+        this.createSprite();
+      }
+      createSprite() {
+        this.offCanvas = document.createElement('canvas');
+        this.offCanvas.width = this.radius * 2;
+        this.offCanvas.height = this.radius * 2;
+        const off = this.offCanvas.getContext('2d');
+        const cx = this.radius, cy = this.radius;
+        const [r,g,b] = this.color;
+
+        // Enhanced bubble design with better contrast
+        // Outer glow for visibility
+        const outerGlow = off.createRadialGradient(cx, cy, this.radius * 0.7, cx, cy, this.radius * 1.2);
+        outerGlow.addColorStop(0, `rgba(${r},${g},${b},0.3)`);
+        outerGlow.addColorStop(1, `rgba(${r},${g},${b},0)`);
+        off.fillStyle = outerGlow;
+        off.beginPath(); 
+        off.arc(cx, cy, this.radius * 1.1, 0, Math.PI*2); 
+        off.fill();
+
+        // Main bubble gradient - more vibrant and contrasted
+        const grad = off.createRadialGradient(cx, cy, 0, cx, cy, this.radius);
+        grad.addColorStop(0, `rgba(${Math.min(255, r + 40)},${Math.min(255, g + 40)},${Math.min(255, b + 40)},0.95)`);
+        grad.addColorStop(0.6, `rgba(${r},${g},${b},0.85)`);
+        grad.addColorStop(0.9, `rgba(${Math.max(0, r - 30)},${Math.max(0, g - 30)},${Math.max(0, b - 30)},0.7)`);
+        grad.addColorStop(1, `rgba(${Math.max(0, r - 50)},${Math.max(0, g - 50)},${Math.max(0, b - 50)},0.4)`);
+        off.fillStyle = grad;
+        off.beginPath(); 
+        off.arc(cx, cy, this.radius, 0, Math.PI*2); 
+        off.fill();
+
+        // Strong white border for definition
+        off.strokeStyle = 'rgba(255,255,255,0.95)';
+        off.lineWidth = 4;
+        off.beginPath(); 
+        off.arc(cx, cy, this.radius-2, 0, Math.PI*2); 
+        off.stroke();
+
+        // Inner border for depth
+        off.strokeStyle = `rgba(${Math.max(0, r - 40)},${Math.max(0, g - 40)},${Math.max(0, b - 40)},0.6)`;
+        off.lineWidth = 2;
+        off.beginPath(); 
+        off.arc(cx, cy, this.radius-6, 0, Math.PI*2); 
+        off.stroke();
+
+        // Enhanced highlights for 3D effect
+        const hw = Math.floor(this.radius * 0.35);
+        const hx = Math.floor(cx - this.radius * 0.3), hy = Math.floor(cy - this.radius * 0.3);
+        const highlight = off.createRadialGradient(hx, hy, 0, hx, hy, hw);
+        highlight.addColorStop(0, 'rgba(255,255,255,0.9)');
+        highlight.addColorStop(0.5, 'rgba(255,255,255,0.6)');
+        highlight.addColorStop(1, 'rgba(255,255,255,0)');
+        off.fillStyle = highlight;
+        off.beginPath(); 
+        off.arc(hx, hy, hw, 0, Math.PI*2); 
+        off.fill();
+
+        // Secondary highlight
+        const sw = Math.floor(this.radius * 0.18);
+        const sx = Math.floor(cx + this.radius * 0.25), sy = Math.floor(cy + this.radius * 0.15);
+        const small = off.createRadialGradient(sx, sy, 0, sx, sy, sw);
+        small.addColorStop(0, 'rgba(255,255,255,0.8)');
+        small.addColorStop(1, 'rgba(255,255,255,0)');
+        off.fillStyle = small;
+        off.beginPath(); 
+        off.arc(sx, sy, sw, 0, Math.PI*2); 
+        off.fill();
+      }
+      move(dt) {
+        this.phase += 1.0 * dt;
+        const wob_x = this.wobble_x * Math.sin(this.phase * 1.2);
+        const wob_y = this.wobble_y * Math.cos(this.phase * 0.9);
+        this.vx *= DRAG;
+        this.x += (this.vx * dt) + (wob_x * dt);
+        this.y += (this.vy * dt) + (wob_y * dt);
+        if (this.x < this.radius) { this.x = this.radius; this.vx = Math.abs(this.vx); }
+        if (this.x > WIDTH - this.radius) { this.x = WIDTH - this.radius; this.vx = -Math.abs(this.vx); }
+        if (this.alpha < 255) this.alpha = Math.min(255, this.alpha + Math.floor(700 * dt));
+        if (this.y < -this.radius - 10) this.respawn();
+      }
+      respawn() {
+        const existing = bubbles.filter(b => b !== this);
+        [this.category, this.color, this.theme] = feeder.next(new Set(existing.map(b => b.category)));
+        const mctx = document.createElement('canvas').getContext('2d');
+        mctx.font = bubble_font;
+        const txt_w = mctx.measureText(this.category).width;
+        const fit_r = txt_w / 2 + 50;
+        this.radius = Math.max(
+          Math.floor(Math.random() * (MAX_R - MIN_R + 1)) + MIN_R,
+          Math.min(MAX_R, fit_r)
+        );
+        this.x = Math.floor(Math.random() * (WIDTH - this.radius*2 - 20)) + this.radius + 10;
+        this.y = HEIGHT + Math.floor(Math.random() * 181) + 40;
+        this.vx = Math.random() * (SIDE_DRIFT[1]*2) - SIDE_DRIFT[1];
+        this.vy = - (Math.random() * (UP_SPEED[1] - UP_SPEED[0]) + UP_SPEED[0]);
+        this.phase = Math.random() * 2 * Math.PI;
+        this.wobble_x = Math.random() * (WOBBLE[1] - WOBBLE[0]) + WOBBLE[0];
+        this.wobble_y = Math.random() * (WOBBLE[1] - WOBBLE[0]) + WOBBLE[0];
+        this.alpha = 0;
+        this.createSprite();
+      }
+      draw() {
+        ctx.globalAlpha = this.alpha / 255;
+        ctx.drawImage(this.offCanvas, this.x - this.radius, this.y - this.radius);
+        ctx.globalAlpha = 1.0;
+        draw_text_with_shadow(this.category, this.x, this.y, bubble_font, 'rgb(255,255,255)', 'rgb(0,0,0)', 2, 2);
+      }
+    }
+
+    /**********************
+     * SEPARATION
+     **********************/
+    function separate(balls) {
+      for (let i = 0; i < balls.length; i++) {
+        for (let j = i + 1; j < balls.length; j++) {
+          const a = balls[i], b = balls[j];
+          const dx = b.x - a.x, dy = b.y - a.y;
+          const dist = Math.hypot(dx, dy);
+          const min_dist = a.radius + b.radius + MIN_GAP;
+          if (dist < min_dist && dist > 0) {
+            const nx = dx / dist, ny = dy / dist;
+            const push = (min_dist - dist) * 0.5;
+            a.x -= nx * push; a.y -= ny * push;
+            b.x += nx * push; b.y += ny * push;
+          }
+        }
+      }
+    }
+
+    /**********************
+     * INPUT EVENTS
+     **********************/
+    function handlePoint(mx, my) {
+      for (const b of bubbles) {
+        if (Math.hypot(b.x - mx, b.y - my) <= b.radius) {
+          play_pop();
+          const dist = Math.hypot(b.x - mx, b.y - my);
+          const accuracy = Math.max(0, 100 - Math.floor((dist / b.radius) * 100));
+          theme_accuracy[b.theme] = theme_accuracy[b.theme] || [];
+          theme_accuracy[b.theme].push(accuracy);
+          popped_categories.push(b.category);
+          b.respawn();
+          break;
+        }
+      }
+    }
+    canvas.addEventListener('mousedown', (e) => {
+      const rect = canvas.getBoundingClientRect();
+      handlePoint(e.clientX - rect.left, e.clientY - rect.top);
+    }, { passive: true });
+    canvas.addEventListener('touchstart', (e) => {
+      const rect = canvas.getBoundingClientRect();
+      const t = e.changedTouches[0];
+      handlePoint(t.clientX - rect.left, t.clientY - rect.top);
+    }, { passive: true });
+
+    /**********************
+     * GAME LOOP
+     **********************/
+    function drawTimer(remaining_time) {
+      ctx.save();
+      
+      // Timer background for better visibility
+      ctx.fillStyle = 'rgba(0,0,0,0.7)';
+      ctx.fillRect(5, 5, 280, 50);
+      ctx.fillStyle = 'rgba(238,68,34,0.2)';
+      ctx.fillRect(7, 7, 276, 46);
+      
+      ctx.font = 'bold 32px "Comic Neue", Arial, sans-serif';
+      ctx.textAlign = 'left';
+      ctx.textBaseline = 'top';
+      
+      // Enhanced shadow
+      ctx.fillStyle = 'rgba(0,0,0,0.8)';
+      ctx.fillText(`⏰ Time Left: ${remaining_time}s`, 12, 12);
+      
+      // Main text
+      ctx.fillStyle = '#ffffff';
+      ctx.fillText(`⏰ Time Left: ${remaining_time}s`, 10, 10);
+      
+      ctx.restore();
+    }
+
+    function computeThemeOfLearning() {
+      const avg = {};
+      for (const [t, arr] of Object.entries(theme_accuracy)) {
+        if (arr.length) avg[t] = arr.reduce((a,b)=>a+b, 0) / arr.length;
+      }
+      const keys = Object.keys(avg);
+      if (!keys.length) return "How We Express Ourselves";
+      return keys.reduce((a,b)=> avg[a] > avg[b] ? a : b);
+    }
+
+    async function gameLoop(ts) {
+      if (!start_time) start_time = ts;
+      if (!lastTime) lastTime = ts;
+      const dt = (ts - lastTime) / 1000;
+      lastTime = ts;
+
+      const elapsed = (ts - start_time) / 1000;
+      const remaining = Math.max(0, Math.floor(GAME_TIME - elapsed));
+
+      // update
+      for (const b of bubbles) b.move(dt);
+      separate(bubbles);
+
+      // Enhanced background with subtle gradient
+      const bgGrad = ctx.createLinearGradient(0, 0, 0, HEIGHT);
+      bgGrad.addColorStop(0, `rgb(${BG[0] + 10},${BG[1] + 15},${BG[2] + 20})`);
+      bgGrad.addColorStop(0.5, `rgb(${BG[0]},${BG[1]},${BG[2]})`);
+      bgGrad.addColorStop(1, `rgb(${BG[0] - 5},${BG[1] - 5},${BG[2] - 5})`);
+      ctx.fillStyle = bgGrad;
+      ctx.fillRect(0, 0, WIDTH, HEIGHT);
+
+      // Subtle pattern overlay for texture
+      ctx.globalAlpha = 0.03;
+      for (let i = 0; i < WIDTH; i += 40) {
+        for (let j = 0; j < HEIGHT; j += 40) {
+          ctx.fillStyle = 'rgba(255,255,255,0.5)';
+          ctx.fillRect(i, j, 1, 1);
+        }
+      }
+      ctx.globalAlpha = 1.0;
+
+      // draw bubbles
+      for (const b of bubbles) b.draw();
+
+      // Enhanced timer with better visibility
+      drawTimer(remaining);
+
+      if (remaining > 0) {
+        requestAnimationFrame(gameLoop);
+      } else {
+        // end round
+        document.getElementById('game').style.display = 'none';
+        const loading = document.getElementById('loading-screen');
+        const loadingText = document.getElementById('loading-text');
+        loadingText.innerHTML = `
+          <div class="loading-emoji">🎪</div>
+          <div>Creating personalized learning trail for ${kid_name}...</div>
+          <div class="loading-emoji">✨</div>
+        `;
+        loading.style.display = 'flex';
+
+        const theme_of_learning = computeThemeOfLearning();
+        await generateLearningTrail(theme_of_learning);
+
+        loading.style.display = 'none';
+      }
+    }
+
+    /**********************
+     * TRAIL GENERATION (REAL API CALL FROM BROWSER)
+     **********************/
+    function stripEmojis(str) {
+      return str.replace(/[\u{1F300}-\u{1FAFF}\u{2600}-\u{27BF}]/gu, '');
+    }
+    function stripDates(str) {
+      // Remove common date formats (e.g., "September 20, 2025", "09/20/2025", "20-Sep-2025", etc.)
+      return str.replace(
+        /(\b(?:January|February|March|April|May|June|July|August|September|October|November|December)\s+\d{1,2},\s+\d{4}\b)|(\b\d{1,2}[-/]\d{1,2}[-/]\d{4}\b)|(\b\d{4}[-/]\d{1,2}[-/]\d{1,2}\b)|(\b\d{1,2}\s+(?:Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)[a-z]*\s+\d{4}\b)/gi,
+        ''
+      );
+    }
+    function boldLikelyHeadings(lines) {
+      return lines.map(line => {
+        const trimmed = line.trim();
+        if (!trimmed) return '';
+        if (/^#{1,6}\s*(.*)$/.test(trimmed)) {
+          return `<strong>${trimmed.replace(/^#{1,6}\s*/, '')}</strong>`;
+        }
+        if (/^\d+\.\s+/.test(trimmed)) {
+          return `<strong>${trimmed}</strong>`;
+        }
+        if (/:$/.test(trimmed)) {
+          return `<strong>${trimmed}</strong>`;
+        }
+        return trimmed.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
+      });
+    }
+
+    async function generateLearningTrail(theme_of_learning) {
+      const popped_str = popped_categories.join(', ') || 'no pops detected';
+      const prompt = `
+You are an IB PYP educator. Create a 1-day learning trail for ${kid_name},
+a ${kid_age}-year-old ${kid_gender}, aligned to IB Early Years Programme / PYP.
+
+Today's learning theme: ${theme_of_learning}.
+Child showed high interest in: ${popped_str}.
+
+Structure:
+1. Morning circle time (15 min) - introduce theme with songs/movement
+2. Main activity (30-45 min) - hands-on exploration
+3. Snack & reflection (15 min) - discuss discoveries
+4. Creative expression (20-30 min) - art, music, or drama
+5. Outdoor/physical activity (20 min) - connect theme to movement
+6. Story time & closing circle (15 min) - books and wrap-up
+
+For each section, provide:
+- Specific activity description
+- Materials needed
+- Learning objectives (PYP-aligned)
+- Extension ideas for home
+
+Keep language simple, engaging, and age-appropriate for ${kid_age}-year-old.
+Focus on inquiry-based learning and multiple intelligences.
+Include multicultural perspectives where relevant.
+`;
+
+      try {
+        const response = await fetch('https://api.openai.com/v1/chat/completions', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${API_KEY}`
+          },
+          body: JSON.stringify({
+            model: MODEL,
+            messages: [{ role: 'user', content: prompt }],
+            max_tokens: 2000,
+            temperature: 0.7
+          })
+        });
+
+        if (!response.ok) {
+          throw new Error(`API Error: ${response.status} ${response.statusText}`);
+        }
+
+        const data = await response.json();
+        let trail_content = data.choices[0].message.content;
+
+        // Clean up the content
+        trail_content = stripEmojis(trail_content);
+        trail_content = stripDates(trail_content);
+        
+        const lines = trail_content.split('\n');
+        const formatted_lines = boldLikelyHeadings(lines);
+        const final_content = formatted_lines.join('<br>');
+
+        // Display results
+        const resultDiv = document.getElementById('result');
+        resultDiv.innerHTML = `
+          <h2>🌟 ${kid_name.toUpperCase()}'s PERSONALIZED LEARNING TRAILS! 🌟</h2>
+          <div style="background: linear-gradient(45deg, rgba(238, 68, 34, 0.1), rgba(79, 156, 255, 0.1)); padding: 20px; border-radius: 16px; margin-bottom: 20px;">
+            <strong>🎯 Today's Theme:</strong> ${theme_of_learning}<br>
+            <strong>🫧 Bubbles Popped:</strong> ${popped_categories.length}<br>
+            <strong>💝 Favorite Categories:</strong> ${popped_str}
+          </div>
+          <div style="line-height: 1.8;">${final_content}</div>
+          <button id="start-again-button" onclick="location.reload()">🎪 Play Again! 🎪</button>
+        `;
+        resultDiv.style.display = 'block';
+
+        // Play completion sound when trail generation is complete
+        playCompletionSound();
+
+      } catch (error) {
+        console.error('Error generating learning trail:', error);
+        const errorDiv = document.getElementById('error');
+        errorDiv.innerHTML = `
+          <h2>🚫 Oops! Something went wrong</h2>
+          <p><strong>Error:</strong> ${error.message}</p>
+          <p>Please check your internet connection and try again.</p>
+          <button id="start-again-button" onclick="location.reload()">🔄 Try Again</button>
+        `;
+        errorDiv.style.display = 'block';
+      }
+    }
+
+    /**********************
+     * GAME INITIALIZATION
+     **********************/
+    document.getElementById('start-button').addEventListener('click', () => {
+      kid_name = document.getElementById('kid-name-input').value.trim();
+      kid_age = document.getElementById('kid-age-input').value;
+      kid_gender = document.getElementById('kid-gender-input').value;
+
+      if (!kid_name) {
+        alert('🌟 Please enter the child\'s name to start the adventure! 🌟');
+        return;
+      }
+      if (!kid_age || kid_age < 2 || kid_age > 12) {
+        alert('🎂 Please enter a valid age between 2 and 12! 🎂');
+        return;
+      }
+
+      // Start background music
+      startBackgroundMusic();
+
+      // Hide start screen, show game
+      document.getElementById('start-screen').style.display = 'none';
+      document.getElementById('game').style.display = 'block';
+
+      // Initialize bubbles
+      bubbles = [];
+      for (let i = 0; i < BUBBLE_COUNT; i++) {
+        bubbles.push(new Bubble(bubbles));
+      }
+
+      // Reset game state
+      start_time = null;
+      theme_accuracy = {};
+      popped_categories = [];
+      lastTime = null;
+
+      // Start game loop
+      requestAnimationFrame(gameLoop);
+    });
+
+    // Add some carnival sound effects on interaction
+    document.addEventListener('click', () => {
+      // Enable audio context on first user interaction
+      if (popSound.paused) {
+        popSound.play().then(() => popSound.pause()).catch(() => {});
+      }
+      // Also prepare background music for when game starts
+      if (bgMusic.paused) {
+        bgMusic.play().then(() => bgMusic.pause()).catch(() => {});
+      }
+    }, { once: true });
+  </script>
+</html>
