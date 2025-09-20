@@ -546,7 +546,7 @@
      **********************/
     const API_ENDPOINT = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
       ? 'http://localhost:3001/api/openai'  // Development
-      : 'https://your-proxy-server.herokuapp.com/api/openai';  // Production
+      : '/api/openai';  // Production - uses Vercel serverless functions
     
     const MODEL = "gpt-4o-mini-2024-07-18";
     const WIDTH = 1000, HEIGHT = 750, GAME_TIME = 30, BUBBLE_COUNT = 7;

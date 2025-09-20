@@ -12,8 +12,8 @@ const PORT = process.env.PORT || 3001;
 // Middleware
 app.use(cors({
   origin: process.env.NODE_ENV === 'production' 
-    ? ['https://obi-life.github.io/trail-game']
-    : ['http://localhost:3000', 'http://127.0.0.1:8081']
+    ? false  // No CORS needed - same domain
+    : ['http://localhost:3000', 'http://127.0.0.1:8081', 'http://localhost:8080']
 }));
 app.use(express.json());
 
