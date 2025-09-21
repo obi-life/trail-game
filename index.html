@@ -260,12 +260,70 @@
       height: calc(100vh - 32px);
     }
 
+    /* Fullscreen button */
+    #fullscreen-btn {
+      position: fixed;
+      top: 20px;
+      right: 20px;
+      z-index: 1000;
+      background: linear-gradient(45deg, var(--primary), var(--secondary));
+      color: white;
+      border: none;
+      border-radius: 50%;
+      width: 60px;
+      height: 60px;
+      font-size: 24px;
+      cursor: pointer;
+      box-shadow: var(--shadow);
+      transition: all 0.3s ease;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      font-family: 'Comic Neue', cursive;
+    }
+
+    #fullscreen-btn:hover {
+      background: linear-gradient(45deg, var(--secondary), var(--primary));
+      transform: scale(1.1);
+      box-shadow: var(--shadow-hover);
+    }
+
+    #fullscreen-btn:active {
+      transform: scale(0.95);
+    }
+
+    /* Fullscreen styles */
+    #game.fullscreen {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100vw !important;
+      height: 100vh !important;
+      margin: 0 !important;
+      border-radius: 0 !important;
+      border: none !important;
+      z-index: 999;
+    }
+
+    /* Hide fullscreen button when in fullscreen mode */
+    :fullscreen #fullscreen-btn {
+      display: none !important;
+    }
+
     /* Responsive adjustments for canvas */
     @media (max-width: 1024px) {
       #game {
         width: calc(100vw - 32px);
         height: calc(100vh - 32px);
         margin: 16px;
+      }
+      
+      #fullscreen-btn {
+        width: 50px;
+        height: 50px;
+        font-size: 20px;
+        top: 15px;
+        right: 15px;
       }
     }
 
@@ -275,6 +333,14 @@
         height: calc(100vh - 16px);
         margin: 8px;
         border-radius: 12px;
+      }
+      
+      #fullscreen-btn {
+        width: 45px;
+        height: 45px;
+        font-size: 18px;
+        top: 10px;
+        right: 10px;
       }
     }
 
@@ -547,6 +613,9 @@
 
   <!-- GAME CANVAS -->
   <canvas id="game" aria-label="Bubble Pop Game"></canvas>
+
+  <!-- FULLSCREEN BUTTON -->
+  <button id="fullscreen-btn" title="Enter Fullscreen">⛶</button>
 
   <!-- LOADING OVERLAY -->
   <div id="loading-screen">
@@ -1325,6 +1394,75 @@ Keep it playful, age-appropriate, and IB learner profile–aligned.
     }
 
     /**********************
+     * FULLSCREEN FUNCTIONALITY
+     **********************/
+    function toggleFullscreen() {
+      const canvas = document.getElementById('game');
+      const fullscreenBtn = document.getElementById('fullscreen-btn');
+      
+      if (!document.fullscreenElement) {
+        // Enter fullscreen
+        if (canvas.requestFullscreen) {
+          canvas.requestFullscreen();
+        } else if (canvas.webkitRequestFullscreen) {
+          canvas.webkitRequestFullscreen();
+        } else if (canvas.msRequestFullscreen) {
+          canvas.msRequestFullscreen();
+        }
+        
+        canvas.classList.add('fullscreen');
+        fullscreenBtn.innerHTML = '⛶';
+        fullscreenBtn.title = 'Exit Fullscreen';
+        
+        // Update canvas size for fullscreen
+        setupResponsiveCanvas();
+        
+      } else {
+        // Exit fullscreen
+        if (document.exitFullscreen) {
+          document.exitFullscreen();
+        } else if (document.webkitExitFullscreen) {
+          document.webkitExitFullscreen();
+        } else if (document.msExitFullscreen) {
+          document.msExitFullscreen();
+        }
+        
+        canvas.classList.remove('fullscreen');
+        fullscreenBtn.innerHTML = '⛶';
+        fullscreenBtn.title = 'Enter Fullscreen';
+        
+        // Restore normal canvas size
+        setupResponsiveCanvas();
+      }
+    }
+
+    // Listen for fullscreen changes
+    document.addEventListener('fullscreenchange', () => {
+      const canvas = document.getElementById('game');
+      const fullscreenBtn = document.getElementById('fullscreen-btn');
+      
+      if (!document.fullscreenElement) {
+        canvas.classList.remove('fullscreen');
+        fullscreenBtn.innerHTML = '⛶';
+        fullscreenBtn.title = 'Enter Fullscreen';
+        setupResponsiveCanvas();
+      }
+    });
+
+    // Also handle webkit and moz prefixed events
+    document.addEventListener('webkitfullscreenchange', () => {
+      const canvas = document.getElementById('game');
+      const fullscreenBtn = document.getElementById('fullscreen-btn');
+      
+      if (!document.webkitFullscreenElement) {
+        canvas.classList.remove('fullscreen');
+        fullscreenBtn.innerHTML = '⛶';
+        fullscreenBtn.title = 'Enter Fullscreen';
+        setupResponsiveCanvas();
+      }
+    });
+
+    /**********************
      * GAME INITIALIZATION
      **********************/
     document.getElementById('start-button').addEventListener('click', () => {
@@ -1347,9 +1485,10 @@ Keep it playful, age-appropriate, and IB learner profile–aligned.
       // Start background music
       startBackgroundMusic();
 
-      // Hide start screen, show game
+      // Hide start screen, show game and fullscreen button
       document.getElementById('start-screen').style.display = 'none';
       document.getElementById('game').style.display = 'block';
+      document.getElementById('fullscreen-btn').style.display = 'flex';
 
       // Initialize bubbles
       bubbles = [];
@@ -1365,6 +1504,17 @@ Keep it playful, age-appropriate, and IB learner profile–aligned.
 
       // Start game loop
       requestAnimationFrame(gameLoop);
+    });
+
+    // Add fullscreen button event listener
+    document.getElementById('fullscreen-btn').addEventListener('click', toggleFullscreen);
+
+    // Add keyboard shortcut for fullscreen (F key or F11)
+    document.addEventListener('keydown', (e) => {
+      if ((e.key === 'f' || e.key === 'F') && document.getElementById('game').style.display === 'block') {
+        e.preventDefault();
+        toggleFullscreen();
+      }
     });
 
     // Add some carnival sound effects on interaction
