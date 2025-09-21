@@ -246,101 +246,28 @@
     /* Canvas / Game */
     #game {
       display: none;
-      margin: 16px auto;
-      border-radius: 20px;
+      margin: 16px;
+      border-radius: 12px;
       box-shadow: var(--shadow);
       background: var(--bg-gradient);
       touch-action: none;
-      border: 4px solid rgba(255, 255, 255, 0.3);
+      border: 2px solid rgba(255, 255, 255, 0.2);
       position: relative;
       z-index: 10;
-      max-width: 100vw;
-      max-height: 100vh;
-      width: 100%;
-      height: calc(100vh - 32px);
-    }
-
-    /* Fullscreen button */
-    #fullscreen-btn {
-      position: fixed;
-      top: 20px;
-      right: 20px;
-      z-index: 1000;
-      background: linear-gradient(45deg, var(--primary), var(--secondary));
-      color: white;
-      border: none;
-      border-radius: 50%;
-      width: 60px;
-      height: 60px;
-      font-size: 24px;
-      cursor: pointer;
-      box-shadow: var(--shadow);
-      transition: all 0.3s ease;
-      display: none;
-      align-items: center;
-      justify-content: center;
-      font-family: 'Comic Neue', cursive;
-    }
-
-    #fullscreen-btn:hover {
-      background: linear-gradient(45deg, var(--secondary), var(--primary));
-      transform: scale(1.1);
-      box-shadow: var(--shadow-hover);
-    }
-
-    #fullscreen-btn:active {
-      transform: scale(0.95);
-    }
-
-    /* Fullscreen styles */
-    #game.fullscreen {
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 100vw !important;
-      height: 100vh !important;
-      margin: 0 !important;
-      border-radius: 0 !important;
-      border: none !important;
-      z-index: 999;
-    }
-
-    /* Hide fullscreen button when in fullscreen mode */
-    :fullscreen #fullscreen-btn {
-      display: none !important;
     }
 
     /* Responsive adjustments for canvas */
     @media (max-width: 1024px) {
       #game {
-        width: calc(100vw - 32px);
-        height: calc(100vh - 32px);
-        margin: 16px;
-      }
-      
-      #fullscreen-btn {
-        width: 50px;
-        height: 50px;
-        font-size: 20px;
-        top: 15px;
-        right: 15px;
+        margin: 12px ;
+        border-radius: 8px;
       }
     }
 
     @media (max-width: 768px) {
       #game {
-        width: calc(100vw - 16px);
-        height: calc(100vh - 16px);
         margin: 8px;
-        border-radius: 12px;
-      }
-      
-      #fullscreen-btn {
-        width: 45px;
-        height: 45px;
-        font-size: 18px;
-        top: 10px;
-        right: 10px;
+        border-radius: 6px;
       }
     }
 
@@ -614,8 +541,7 @@
   <!-- GAME CANVAS -->
   <canvas id="game" aria-label="Bubble Pop Game"></canvas>
 
-  <!-- FULLSCREEN BUTTON -->
-  <button id="fullscreen-btn" title="Enter Fullscreen">⛶</button>
+
 
   <!-- LOADING OVERLAY -->
   <div id="loading-screen">
@@ -803,20 +729,28 @@
      **********************/
     function setupResponsiveCanvas() {
       const canvas = document.getElementById('game');
-      const container = document.body;
       
-      // Calculate responsive dimensions
-      const maxWidth = Math.min(1000, window.innerWidth - 32);
-      const maxHeight = Math.min(750, window.innerHeight - 32);
+      // Use most of the available viewport space (leaving small margins)
+      const availableWidth = window.innerWidth - 32; // 16px margin on each side
+      const availableHeight = window.innerHeight - 32; // 16px margin on top/bottom
       
-      // Maintain aspect ratio
-      const aspectRatio = 1000 / 750;
-      let canvasWidth = maxWidth;
-      let canvasHeight = maxWidth / aspectRatio;
+      // Use dynamic aspect ratio based on viewport, but with reasonable limits
+      let canvasWidth = availableWidth;
+      let canvasHeight = availableHeight;
       
-      if (canvasHeight > maxHeight) {
-        canvasHeight = maxHeight;
-        canvasWidth = maxHeight * aspectRatio;
+      // Optional: If you want to maintain some aspect ratio constraints
+      // You can set min/max ratios instead of fixed ones
+      const minAspectRatio = 1.2; // Minimum width:height ratio (slightly wider than square)
+      const maxAspectRatio = 2.5; // Maximum width:height ratio (not too wide)
+      
+      const currentAspectRatio = canvasWidth / canvasHeight;
+      
+      if (currentAspectRatio < minAspectRatio) {
+        // Too tall, reduce height
+        canvasHeight = canvasWidth / minAspectRatio;
+      } else if (currentAspectRatio > maxAspectRatio) {
+        // Too wide, reduce width
+        canvasWidth = canvasHeight * maxAspectRatio;
       }
       
       // Update canvas dimensions
@@ -829,7 +763,7 @@
       WIDTH = canvasWidth;
       HEIGHT = canvasHeight;
       
-      console.log(`Canvas resized to: ${WIDTH}x${HEIGHT}`);
+      console.log(`Canvas resized to: ${WIDTH}x${HEIGHT}, aspect ratio: ${(WIDTH/HEIGHT).toFixed(2)}`);
     }
 
     // Call setup function when window resizes
@@ -1393,74 +1327,7 @@ Keep it playful, age-appropriate, and IB learner profile–aligned.
       }
     }
 
-    /**********************
-     * FULLSCREEN FUNCTIONALITY
-     **********************/
-    function toggleFullscreen() {
-      const canvas = document.getElementById('game');
-      const fullscreenBtn = document.getElementById('fullscreen-btn');
-      
-      if (!document.fullscreenElement) {
-        // Enter fullscreen
-        if (canvas.requestFullscreen) {
-          canvas.requestFullscreen();
-        } else if (canvas.webkitRequestFullscreen) {
-          canvas.webkitRequestFullscreen();
-        } else if (canvas.msRequestFullscreen) {
-          canvas.msRequestFullscreen();
-        }
-        
-        canvas.classList.add('fullscreen');
-        fullscreenBtn.innerHTML = '⛶';
-        fullscreenBtn.title = 'Exit Fullscreen';
-        
-        // Update canvas size for fullscreen
-        setupResponsiveCanvas();
-        
-      } else {
-        // Exit fullscreen
-        if (document.exitFullscreen) {
-          document.exitFullscreen();
-        } else if (document.webkitExitFullscreen) {
-          document.webkitExitFullscreen();
-        } else if (document.msExitFullscreen) {
-          document.msExitFullscreen();
-        }
-        
-        canvas.classList.remove('fullscreen');
-        fullscreenBtn.innerHTML = '⛶';
-        fullscreenBtn.title = 'Enter Fullscreen';
-        
-        // Restore normal canvas size
-        setupResponsiveCanvas();
-      }
-    }
-
-    // Listen for fullscreen changes
-    document.addEventListener('fullscreenchange', () => {
-      const canvas = document.getElementById('game');
-      const fullscreenBtn = document.getElementById('fullscreen-btn');
-      
-      if (!document.fullscreenElement) {
-        canvas.classList.remove('fullscreen');
-        fullscreenBtn.innerHTML = '⛶';
-        fullscreenBtn.title = 'Enter Fullscreen';
-        setupResponsiveCanvas();
-      }
-    });
-
-    // Also handle webkit and moz prefixed events
-    document.addEventListener('webkitfullscreenchange', () => {
-      const canvas = document.getElementById('game');
-      const fullscreenBtn = document.getElementById('fullscreen-btn');
-      
-      if (!document.webkitFullscreenElement) {
-        canvas.classList.remove('fullscreen');
-        fullscreenBtn.innerHTML = '⛶';
-        fullscreenBtn.title = 'Enter Fullscreen';
-        setupResponsiveCanvas();
-      }
-    });
+    
 
     /**********************
      * GAME INITIALIZATION
@@ -1485,10 +1352,9 @@ Keep it playful, age-appropriate, and IB learner profile–aligned.
       // Start background music
       startBackgroundMusic();
 
-      // Hide start screen, show game and fullscreen button
+      // Hide start screen, show game
       document.getElementById('start-screen').style.display = 'none';
       document.getElementById('game').style.display = 'block';
-      document.getElementById('fullscreen-btn').style.display = 'flex';
 
       // Initialize bubbles
       bubbles = [];
@@ -1506,16 +1372,7 @@ Keep it playful, age-appropriate, and IB learner profile–aligned.
       requestAnimationFrame(gameLoop);
     });
 
-    // Add fullscreen button event listener
-    document.getElementById('fullscreen-btn').addEventListener('click', toggleFullscreen);
 
-    // Add keyboard shortcut for fullscreen (F key or F11)
-    document.addEventListener('keydown', (e) => {
-      if ((e.key === 'f' || e.key === 'F') && document.getElementById('game').style.display === 'block') {
-        e.preventDefault();
-        toggleFullscreen();
-      }
-    });
 
     // Add some carnival sound effects on interaction
     document.addEventListener('click', () => {
