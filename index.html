@@ -254,6 +254,28 @@
       border: 4px solid rgba(255, 255, 255, 0.3);
       position: relative;
       z-index: 10;
+      max-width: 100vw;
+      max-height: 100vh;
+      width: 100%;
+      height: calc(100vh - 32px);
+    }
+
+    /* Responsive adjustments for canvas */
+    @media (max-width: 1024px) {
+      #game {
+        width: calc(100vw - 32px);
+        height: calc(100vh - 32px);
+        margin: 16px;
+      }
+    }
+
+    @media (max-width: 768px) {
+      #game {
+        width: calc(100vw - 16px);
+        height: calc(100vh - 16px);
+        margin: 8px;
+        border-radius: 12px;
+      }
     }
 
     /* Loading Overlay */
@@ -524,7 +546,7 @@
   </section>
 
   <!-- GAME CANVAS -->
-  <canvas id="game" width="1000" height="750" aria-label="Bubble Pop Game"></canvas>
+  <canvas id="game" aria-label="Bubble Pop Game"></canvas>
 
   <!-- LOADING OVERLAY -->
   <div id="loading-screen">
@@ -542,14 +564,15 @@
   <script>
     /**********************
      * CONFIG
-     * Updated to use proxy server for security
+     * Updated to use responsive canvas dimensions
      **********************/
     const API_ENDPOINT = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
       ? 'http://localhost:3001/api/openai'  // Development
       : '/api/openai';  // Production - uses Vercel serverless functions
     
     const MODEL = "gpt-4o-mini-2024-07-18";
-    const WIDTH = 1000, HEIGHT = 750, GAME_TIME = 30, BUBBLE_COUNT = 7;
+    let WIDTH = 1000, HEIGHT = 750; // These will be updated based on actual canvas size
+    const GAME_TIME = 30, BUBBLE_COUNT = 7;
     const BG = [45, 55, 72]; // Darker, more neutral background for better contrast
     const MIN_R = 45, MAX_R = 75; // Reduced bubble sizes significantly
     const UP_SPEED = [70, 120], SIDE_DRIFT = [20, 40], WOBBLE = [10, 18];
@@ -705,6 +728,43 @@
       }
     }
     const feeder = new CategoryFeeder(CATEGORIES);
+
+    /**********************
+     * RESPONSIVE CANVAS SETUP
+     **********************/
+    function setupResponsiveCanvas() {
+      const canvas = document.getElementById('game');
+      const container = document.body;
+      
+      // Calculate responsive dimensions
+      const maxWidth = Math.min(1000, window.innerWidth - 32);
+      const maxHeight = Math.min(750, window.innerHeight - 32);
+      
+      // Maintain aspect ratio
+      const aspectRatio = 1000 / 750;
+      let canvasWidth = maxWidth;
+      let canvasHeight = maxWidth / aspectRatio;
+      
+      if (canvasHeight > maxHeight) {
+        canvasHeight = maxHeight;
+        canvasWidth = maxHeight * aspectRatio;
+      }
+      
+      // Update canvas dimensions
+      canvas.width = canvasWidth;
+      canvas.height = canvasHeight;
+      canvas.style.width = canvasWidth + 'px';
+      canvas.style.height = canvasHeight + 'px';
+      
+      // Update global WIDTH and HEIGHT variables
+      WIDTH = canvasWidth;
+      HEIGHT = canvasHeight;
+      
+      console.log(`Canvas resized to: ${WIDTH}x${HEIGHT}`);
+    }
+
+    // Call setup function when window resizes
+    window.addEventListener('resize', setupResponsiveCanvas);
 
     /**********************
      * SOUND
@@ -1280,6 +1340,9 @@ Keep it playful, age-appropriate, and IB learner profile–aligned.
         alert('🎂 Please enter a valid age between 2 and 12! 🎂');
         return;
       }
+
+      // Setup responsive canvas before starting game
+      setupResponsiveCanvas();
 
       // Start background music
       startBackgroundMusic();
